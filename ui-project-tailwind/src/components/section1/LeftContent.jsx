@@ -6,9 +6,6 @@ const LeftContent = () => {
     <div className="h-90 w-1/3  flex flex-col justify-between ">  
       <Herotext/>
       <Arrow/>
-       
-
-     
     </div>
   );
 };
