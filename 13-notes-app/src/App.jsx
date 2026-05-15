@@ -9,9 +9,6 @@ const App = () => {
 
   const submithandler = (e) => {
     e.preventDefault();
-
-    // console.log(title,details);
-
     const copyTask = [...task];
     copyTask.push({ title, details });
 
@@ -21,14 +18,11 @@ const App = () => {
     setDetails("");
   };
 
-
-
-
-  const deleteNote = (idx)=>{
+  const deleteNote = (idx) => {
     const copyTask = [...task];
     copyTask.splice(idx, 1);
     setTask(copyTask);
-  }
+  };
   return (
     <div className="h-screen bg-black lg:flex items-start text-white">
       <form
@@ -71,14 +65,18 @@ const App = () => {
 
         <div className="container flex flex-wrap items-start gap-4 mt-7 overflow-auto h-[50%]">
           {task.map(function (elem, idx) {
+          
             return (
               <div
                 key={idx}
-                className=" relative min-h-65 w-60 rounded-2xl p-5 text-black bg-white overflow-auto"
+                className=" relative min-h-65 w-60 rounded-2xl p-5 text-black pt-9 pb-4 px-4 bg-white overflow-auto bg-[url('https://static.vecteezy.com/system/resources/previews/037/152/677/non_2x/sticky-note-paper-background-free-png.png')]"
               >
-                <h2 onClick={(idx)=>{
-                  deleteNote(idx);
-                }} className="absolute bottom-5 left-5 bg-red-600 p-1 rounded-full text-xs">
+                <h2
+                  onClick={(idx) => {
+                    deleteNote(idx);
+                  }}
+                  className="absolute bottom-5 left-5 bg-red-600 p-1 rounded-full text-xs"
+                >
                   <X />
                 </h2>
                 <h2 className="text-xl font-bold uppercase leading-tight">
@@ -89,7 +87,6 @@ const App = () => {
                 </p>
               </div>
             );
-
           })}
         </div>
       </div>
