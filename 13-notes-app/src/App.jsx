@@ -1,93 +1,160 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { CheckCircle2, Circle, Trash2, Plus } from "lucide-react";
 
 const App = () => {
-  const [title, setTitle] = useState("");
-  const [details, setDetails] = useState("");
+  const [inputValue, setInputValue] = useState("");
+  const [todos, setTodos] = useState([]);
+  const [filter, setFilter] = useState("all"); // all, active, completed
 
-  const [task, setTask] = useState([]);
-
-  const submithandler = (e) => {
+  const addTodo = (e) => {
     e.preventDefault();
-    const copyTask = [...task];
-    copyTask.push({ title, details });
+    if (inputValue.trim() === "") return;
 
-    setTask(copyTask);
+    const newTodo = {
+      id: Date.now(),
+      text: inputValue,
+      completed: false,
+    };
 
-    setTitle("");
-    setDetails("");
+    setTodos([...todos, newTodo]);
+    setInputValue("");
   };
 
-  const deleteNote = (idx) => {
-    const copyTask = [...task];
-    copyTask.splice(idx, 1);
-    setTask(copyTask);
+  const toggleTodo = (id) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
+
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  const filteredTodos = todos.filter((todo) => {
+    if (filter === "active") return !todo.completed;
+    if (filter === "completed") return todo.completed;
+    return true;
+  });
+
+  const completedCount = todos.filter((todo) => todo.completed).length;
+  const totalCount = todos.length;
+
   return (
-    <div className="h-screen bg-black lg:flex items-start text-white">
-      <form
-        onSubmit={(e) => {
-          submithandler(e);
-        }}
-        className="flex flex-col lg:w-1/2 items-start gap-4 p-10"
-      >
-        <h1 className="text-4xl font-bold">Add a Note</h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-bold text-gray-800 mb-2">Todo App</h1>
+          <p className="text-gray-600">
+            {completedCount} of {totalCount} completed
+          </p>
+        </div>
 
-        {/* first input for heading */}
-        <input
-          className="border-2 text-white font-medium rounded-md outline-none py-2 w-100 px-6"
-          type="text"
-          placeholder="Enter Task here..."
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-          }}
-        />
+        {/* Input Form */}
+        <form
+          onSubmit={addTodo}
+          className="bg-white rounded-lg shadow-lg p-6 mb-6"
+        >
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Add a new todo..."
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            />
+            <button
+              type="submit"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium flex items-center gap-2 transition duration-200 active:scale-95"
+            >
+              <Plus size={20} />
+              Add
+            </button>
+          </div>
+        </form>
 
-        {/* detailed INPUT */}
+        {/* Filter Buttons */}
+        <div className="flex gap-2 mb-6 justify-center">
+          <button
+            onClick={() => setFilter("all")}
+            className={`px-4 py-2 rounded-lg font-medium transition duration-200 ${
+              filter === "all"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilter("active")}
+            className={`px-4 py-2 rounded-lg font-medium transition duration-200 ${
+              filter === "active"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Active
+          </button>
+          <button
+            onClick={() => setFilter("completed")}
+            className={`px-4 py-2 rounded-lg font-medium transition duration-200 ${
+              filter === "completed"
+                ? "bg-indigo-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Completed
+          </button>
+        </div>
 
-        <textarea
-          className="border-2 h-40 rounded-md outline-none py-2 w-100 px-6"
-          placeholder="Enter Task details here..."
-          value={details}
-          onChange={(e) => {
-            setDetails(e.target.value);
-          }}
-        />
-
-        <button className="bg-white active:scale-95 outline-none w-100 text-black border-2 rounded-md py-2 px-6">
-          Add Task
-        </button>
-      </form>
-
-      <div className="lg:w-1/2 lg:border-l-2   min-h-screen p-10">
-        <h1 className="text-4xl font-bold">Your Notes</h1>
-
-        <div className="container flex flex-wrap items-start gap-4 mt-7 overflow-auto h-[50%]">
-          {task.map(function (elem, idx) {
-          
-            return (
-              <div
-                key={idx}
-                className=" relative min-h-65 w-60 rounded-2xl p-5 text-black pt-9 pb-4 px-4 bg-white overflow-auto bg-[url('https://static.vecteezy.com/system/resources/previews/037/152/677/non_2x/sticky-note-paper-background-free-png.png')]"
-              >
-                <h2
-                  onClick={(idx) => {
-                    deleteNote(idx);
-                  }}
-                  className="absolute bottom-5 left-5 bg-red-600 p-1 rounded-full text-xs"
+        {/* Todo List */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {filteredTodos.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              <p className="text-lg">
+                {filter === "all"
+                  ? "No todos yet. Add one to get started!"
+                  : `No ${filter} todos.`}
+              </p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {filteredTodos.map((todo) => (
+                <li
+                  key={todo.id}
+                  className="p-4 hover:bg-gray-50 transition duration-150 flex items-center gap-3"
                 >
-                  <X />
-                </h2>
-                <h2 className="text-xl font-bold uppercase leading-tight">
-                  {elem.title}
-                </h2>
-                <p className="mt-2 leading-tight text-gray-800 font-medium ">
-                  {elem.details}
-                </p>
-              </div>
-            );
-          })}
+                  <button
+                    onClick={() => toggleTodo(todo.id)}
+                    className="flex-shrink-0 text-indigo-600 hover:text-indigo-700 transition duration-200"
+                  >
+                    {todo.completed ? (
+                      <CheckCircle2 size={24} />
+                    ) : (
+                      <Circle size={24} />
+                    )}
+                  </button>
+                  <span
+                    className={`flex-1 text-lg ${
+                      todo.completed
+                        ? "line-through text-gray-400"
+                        : "text-gray-800"
+                    }`}
+                  >
+                    {todo.text}
+                  </span>
+                  <button
+                    onClick={() => deleteTodo(todo.id)}
+                    className="flex-shrink-0 text-red-500 hover:text-red-700 transition duration-200"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
